@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор Mapefill</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .section h2 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .type-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .type-btn.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .input-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .input-group.full {
+            grid-template-columns: 1fr;
+        }
+
+        .input-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-field label {
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .input-field input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .input-field input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-field input.hidden {
+            display: none;
+        }
+
+        .hint {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #856404;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+
+        thead {
+            background: #667eea;
+            color: white;
+        }
+
+        th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        tbody tr.selected {
+            background: #e7f3ff;
+        }
+
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        .result-box.mapefill {
+            border-left-color: #1565C0;
+            background: linear-gradient(135deg, #1565C015 0%, #1565C015 100%);
+        }
+
+        .result-box.sealant {
+            border-left-color: #2E7D32;
+            background: linear-gradient(135deg, #2E7D3215 0%, #2E7D3215 100%);
+        }
+
+        .result-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .result-box.mapefill .result-value {
+            color: #1565C0;
+        }
+
+        .result-box.sealant .result-value {
+            color: #2E7D32;
+        }
+
+        .result-detail {
+            font-size: 12px;
+            color: #888;
+            margin-top: 3px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .input-group {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            table {
+                font-size: 12px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧮 Калькулятор Mapefill + SikaSwell S-2</h1>
+        </div>
+
+        <div class="content">
+            <!-- Ввод данных -->
+            <div class="section">
+
+                <div class="type-selector">
+                    <button class="type-btn active" id="rectBtn" onclick="setType('rect')">Прямоугольное</button>
+                    <button class="type-btn" id="roundBtn" onclick="setType('round')">Круглое</button>
+                </div>
+
+                <div class="hint">
+                    ❗ <strong>ВНИМАНИЕ:</strong><br>
+                    • Все размеры вводите в <strong>МИЛЛИМЕТРАХ (мм)</strong>
+                </div>
+
+                <div class="input-group">
+                    <div class="input-field">
+                        <label for="length">Длина (мм)</label>
+                        <input type="number" id="length" placeholder="Введите длину" step="0.1">
+                    </div>
+                    <div class="input-field">
+                        <label for="width">Ширина (мм)</label>
+                        <input type="number" id="width" placeholder="Введите ширину" step="0.1">
+                    </div>
+                </div>
+
+                <div class="input-group" id="rectGroup">
+                    <div class="input-field">
+                        <label for="height">Глубина (мм)</label>
+                        <input type="number" id="height" placeholder="Введите глубину" step="0.1">
+                    </div>
+                </div>
+
+                <div class="input-group" id="roundGroup" style="display: none;">
+                    <div class="input-field">
+                        <label for="diameter">Диаметр (мм)</label>
+                        <input type="number" id="diameter" placeholder="Введите диаметр" step="0.1">
+                    </div>
+                    <div class="input-field">
+                        <label for="depth">Глубина (мм)</label>
+                        <input type="number" id="depth" placeholder="Введите глубину" step="0.1">
+                    </div>
+                </div>
+
+                <div class="input-group full">
+                    <div class="input-field">
+                        <label for="count">Количество (шт)</label>
+                        <input type="number" id="count" placeholder="Введите количество" min="1" step="1">
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" onclick="addHole()">➕ Добавить отверстие</button>
+            </div>
+
+            <!-- Таблица -->
+            <div class="section">
+                <h2>📊 Добавленные отверстия</h2>
+                <div class="table-container" id="tableContainer">
+                    <table id="holesTable">
+                        <thead>
+                            <tr>
+                                <th>№</th>
+                                <th>Тип</th>
+                                <th>Параметры (мм)</th>
+                                <th>Кол-во</th>
+                                <th>Объём (м³)</th>
+                                <th>Герметик (м.п.)</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="holesBody">
+                            <tr><td colspan="7" class="empty-state">Отверстия не добавлены</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button class="btn btn-danger" onclick="deleteSelected()">🗑 Удалить выбранное</button>
+            </div>
+
+            <!-- Результаты -->
+            <div class="section">
+                <h2>📈 Результат расчёта</h2>
+                <div class="result-box mapefill">
+                    <div class="result-title">Анкерный заполнитель Mapefill, 25 кг</div>
+                    <div class="result-value" id="mapefillResult">0.00 кг | 0 мешков</div>
+                    <div class="result-detail" id="mapefillDetail"></div>
+                </div>
+                <div class="result-box sealant">
+                    <div class="result-title">Герметик SikaSwell S-2 набухающий красный, 600 мл</div>
+                    <div class="result-value" id="sealantResult">0.00 м.п. | 0 туб</div>
+                    <div class="result-detail" id="sealantDetail"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SEALANT_FACTOR = 0.204;
+        let holes = [];
+        let currentType = 'rect';
+        let selectedRow = null;
+
+        function setType(type) {
+            currentType = type;
+            
+            // Обновляем кнопки
+            document.getElementById('rectBtn').classList.remove('active');
+            document.getElementById('roundBtn').classList.remove('active');
+            
+            if (type === 'rect') {
+                document.getElementById('rectBtn').classList.add('active');
+                // Показываем поля прямоугольника
+                document.getElementById('length').parentElement.parentElement.style.display = 'grid';
+                document.getElementById('width').parentElement.parentElement.style.display = 'grid';
+                document.getElementById('rectGroup').style.display = 'grid';
+                // Скрываем поля круга
+                document.getElementById('roundGroup').style.display = 'none';
+            } else {
+                document.getElementById('roundBtn').classList.add('active');
+                // Скрываем поля прямоугольника
+                document.getElementById('length').parentElement.parentElement.style.display = 'none';
+                document.getElementById('width').parentElement.parentElement.style.display = 'none';
+                document.getElementById('rectGroup').style.display = 'none';
+                // Показываем поля круга
+                document.getElementById('roundGroup').style.display = 'grid';
+            }
+        }
+
+        function ceilTo3(x) {
+            return Math.ceil(x * 1000) / 1000;
+        }
+
+        function addHole() {
+            try {
+                let countVal = document.getElementById('count').value.trim();
+                const count = countVal ? parseInt(countVal) : 1;
+                if (count <= 0) throw new Error('Количество должно быть > 0');
+
+                let hole, paramsStr;
+
+                if (currentType === 'round') {
+                    const d_mm = parseFloat(document.getElementById('diameter').value);
+                    const depth_mm = parseFloat(document.getElementById('depth').value);
+                    if (!d_mm || !depth_mm || d_mm <= 0 || depth_mm <= 0) {
+                        throw new Error('Диаметр и глубина должны быть > 0');
+                    }
+                    hole = {
+                        type: 'round',
+                        diameter_m: d_mm / 1000,
+                        depth_m: depth_mm / 1000,
+                        count: count
+                    };
+                    paramsStr = `Ø${d_mm.toFixed(0)}×${depth_mm.toFixed(0)} мм`;
+                } else {
+                    const l_mm = parseFloat(document.getElementById('length').value);
+                    const w_mm = parseFloat(document.getElementById('width').value);
+                    const h_mm = parseFloat(document.getElementById('height').value);
+                    if (!l_mm || !w_mm || !h_mm || l_mm <= 0 || w_mm <= 0 || h_mm <= 0) {
+                        throw new Error('Все размеры должны быть > 0');
+                    }
+                    hole = {
+                        type: 'rect',
+                        length_m: l_mm / 1000,
+                        width_m: w_mm / 1000,
+                        height_m: h_mm / 1000,
+                        count: count
+                    };
+                    paramsStr = `${l_mm.toFixed(0)}×${w_mm.toFixed(0)}×${h_mm.toFixed(0)} мм`;
+                }
+
+                // Расчёт объёма
+                let vol_one;
+                if (hole.type === 'round') {
+                    vol_one = Math.PI * Math.pow(hole.diameter_m / 2, 2) * hole.depth_m;
+                } else {
+                    vol_one = hole.length_m * hole.width_m * hole.height_m;
+                }
+                const vol_one_rounded = ceilTo3(vol_one);
+                const total_vol = vol_one_rounded * hole.count;
+
+                // Расчёт герметика
+                let perimeter;
+                if (hole.type === 'round') {
+                    perimeter = Math.PI * hole.diameter_m;
+                } else {
+                    perimeter = 2 * (hole.length_m + hole.width_m);
+                }
+                const total_sealant = (perimeter * hole.count).toFixed(2);
+
+                holes.push(hole);
+                renderTable();
+                recalculate();
+                clearInputs();
+            } catch (e) {
+                alert('Ошибка: ' + e.message);
+            }
+        }
+
+        function clearInputs() {
+            document.getElementById('length').value = '';
+            document.getElementById('width').value = '';
+            document.getElementById('height').value = '';
+            document.getElementById('diameter').value = '';
+            document.getElementById('depth').value = '';
+            document.getElementById('count').value = '1';
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('holesBody');
+            if (holes.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Отверстия не добавлены</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = holes.map((hole, idx) => {
+                let paramsStr, vol_one;
+                if (hole.type === 'round') {
+                    paramsStr = `Ø${(hole.diameter_m * 1000).toFixed(0)}×${(hole.depth_m * 1000).toFixed(0)} мм`;
+                    vol_one = Math.PI * Math.pow(hole.diameter_m / 2, 2) * hole.depth_m;
+                } else {
+                    paramsStr = `${(hole.length_m * 1000).toFixed(0)}×${(hole.width_m * 1000).toFixed(0)}×${(hole.height_m * 1000).toFixed(0)} мм`;
+                    vol_one = hole.length_m * hole.width_m * hole.height_m;
+                }
+                const vol_rounded = ceilTo3(vol_one);
+                const total_vol = vol_rounded * hole.count;
+
+                let perimeter;
+                if (hole.type === 'round') {
+                    perimeter = Math.PI * hole.diameter_m;
+                } else {
+                    perimeter = 2 * (hole.length_m + hole.width_m);
+                }
+                const total_sealant = (perimeter * hole.count).toFixed(2);
+                const holeType = hole.type === 'round' ? 'Круглое' : 'Прямоугольное';
+
+                return `
+                    <tr onclick="selectRow(${idx})">
+                        <td>${idx + 1}</td>
+                        <td>${holeType}</td>
+                        <td>${paramsStr}</td>
+                        <td>${hole.count}</td>
+                        <td>${total_vol.toFixed(3)}</td>
+                        <td>${total_sealant}</td>
+                        <td><input type="checkbox" id="check_${idx}" onchange="selectRow(${idx})"></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function selectRow(idx) {
+            selectedRow = idx;
+        }
+
+        function deleteSelected() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+            if (checkboxes.length === 0) {
+                alert('Выберите строку для удаления');
+                return;
+            }
+            const indices = Array.from(checkboxes).map(cb => parseInt(cb.id.split('_')[1])).sort((a, b) => b - a);
+            indices.forEach(idx => {
+                holes.splice(idx, 1);
+            });
+            renderTable();
+            recalculate();
+        }
+
+        function recalculate() {
+            if (holes.length === 0) {
+                document.getElementById('mapefillResult').textContent = '0.00 кг | 0 мешков';
+                document.getElementById('sealantResult').textContent = '0.00 м.п. | 0 туб';
+                document.getElementById('mapefillDetail').textContent = '';
+                document.getElementById('sealantDetail').textContent = '';
+                return;
+            }
+
+            let total_volume = 0;
+            let total_perimeter = 0;
+
+            holes.forEach(hole => {
+                let vol_one;
+                if (hole.type === 'round') {
+                    vol_one = Math.PI * Math.pow(hole.diameter_m / 2, 2) * hole.depth_m;
+                } else {
+                    vol_one = hole.length_m * hole.width_m * hole.height_m;
+                }
+                const vol_rounded = ceilTo3(vol_one);
+                total_volume += vol_rounded * hole.count;
+
+                let perimeter;
+                if (hole.type === 'round') {
+                    perimeter = Math.PI * hole.diameter_m;
+                } else {
+                    perimeter = 2 * (hole.length_m + hole.width_m);
+                }
+                total_perimeter += perimeter * hole.count;
+            });
+
+            total_volume = ceilTo3(total_volume);
+            const total_sealant_display = total_perimeter.toFixed(2);
+
+            const mass = total_volume * 1900;
+            const bags = Math.ceil(mass / 25);
+            const sealant_packs = Math.ceil(total_perimeter * SEALANT_FACTOR);
+
+            document.getElementById('mapefillResult').textContent = `${mass.toFixed(2)} кг | ${bags} мешков`;
+            document.getElementById('mapefillDetail').textContent = `Объём: ${total_volume.toFixed(3)} м³`;
+            document.getElementById('sealantResult').textContent = `${total_sealant_display} м.п. | ${sealant_packs} туб`;
+            document.getElementById('sealantDetail').textContent = `Периметр: ${total_perimeter.toFixed(2)} м`;
+        }
+
+        // Инициализация
+        renderTable();
+        recalculate();
+    </script>
+</body>
+</html>
