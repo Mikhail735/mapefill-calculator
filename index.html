@@ -595,7 +595,7 @@
             total_volume = ceilTo3(total_volume);
             const total_sealant_display = total_perimeter.toFixed(2);
 
-            const mass = total_volume * 1900;
+            const mass = total_volume * 1900 * 0.91;
             const bags = Math.ceil(mass / 25);
             const sealant_packs = Math.ceil(total_perimeter * SEALANT_FACTOR);
 
