@@ -213,7 +213,17 @@
             margin-bottom: 10px;
         }
 
-               .result-title {
+        .result-box.mapefill {
+            border-left-color: #1565C0;
+            background: linear-gradient(135deg, #1565C015 0%, #1565C015 100%);
+        }
+
+        .result-box.sealant {
+            border-left-color: #2E7D32;
+            background: linear-gradient(135deg, #2E7D3215 0%, #2E7D3215 100%);
+        }
+
+        .result-title {
             font-size: 13px;
             font-weight: 600;
             color: #555;
@@ -228,20 +238,6 @@
         .result-box.sealant .result-title {
             color: #2E7D32;
             font-weight: 700;
-        }
-
-        .result-value {
-            font-size: 18px;
-            font-weight: 700;
-            color: #667eea;
-        }
-
-        .result-box.mapefill .result-value {
-            color: #1565C0;
-        }
-
-        .result-box.sealant .result-value {
-            color: #2E7D32;
         }
 
         .result-value {
@@ -313,40 +309,40 @@
                 <div class="input-group">
                     <div class="input-field">
                         <label for="length">Длина (мм)</label>
-                        <input type="number" id="length" placeholder="Введите длину" step="0.1">
+                        <input type="number" id="length" placeholder="Введите длину" step="0.1" onkeypress="handleEnter(event, 'width')">
                     </div>
                     <div class="input-field">
                         <label for="width">Ширина (мм)</label>
-                        <input type="number" id="width" placeholder="Введите ширину" step="0.1">
+                        <input type="number" id="width" placeholder="Введите ширину" step="0.1" onkeypress="handleEnter(event, 'height')">
                     </div>
                 </div>
 
                 <div class="input-group" id="rectGroup">
                     <div class="input-field">
                         <label for="height">Глубина (мм)</label>
-                        <input type="number" id="height" placeholder="Введите глубину" step="0.1">
+                        <input type="number" id="height" placeholder="Введите глубину" step="0.1" onkeypress="handleEnter(event, 'count')">
                     </div>
                 </div>
 
                 <div class="input-group" id="roundGroup" style="display: none;">
                     <div class="input-field">
                         <label for="diameter">Диаметр (мм)</label>
-                        <input type="number" id="diameter" placeholder="Введите диаметр" step="0.1">
+                        <input type="number" id="diameter" placeholder="Введите диаметр" step="0.1" onkeypress="handleEnter(event, 'depth')">
                     </div>
                     <div class="input-field">
                         <label for="depth">Глубина (мм)</label>
-                        <input type="number" id="depth" placeholder="Введите глубину" step="0.1">
+                        <input type="number" id="depth" placeholder="Введите глубину" step="0.1" onkeypress="handleEnter(event, 'count')">
                     </div>
                 </div>
 
                 <div class="input-group full">
                     <div class="input-field">
                         <label for="count">Количество (шт)</label>
-                        <input type="number" id="count" placeholder="Введите количество" min="1" step="1">
+                        <input type="number" id="count" placeholder="Введите количество" min="1" step="1" onkeypress="handleEnter(event, 'add')">
                     </div>
                 </div>
 
-                <button class="btn btn-primary" onclick="addHole()">➕ Добавить отверстие</button>
+                <button class="btn btn-primary" id="addBtn" onclick="addHole()">➕ Добавить отверстие</button>
             </div>
 
             <!-- Таблица -->
@@ -411,6 +407,8 @@
                 document.getElementById('rectGroup').style.display = 'grid';
                 // Скрываем поля круга
                 document.getElementById('roundGroup').style.display = 'none';
+                // Устанавливаем фокус на Длину
+                setTimeout(() => document.getElementById('length').focus(), 100);
             } else {
                 document.getElementById('roundBtn').classList.add('active');
                 // Скрываем поля прямоугольника
@@ -419,6 +417,28 @@
                 document.getElementById('rectGroup').style.display = 'none';
                 // Показываем поля круга
                 document.getElementById('roundGroup').style.display = 'grid';
+                // Устанавливаем фокус на Диаметр
+                setTimeout(() => document.getElementById('diameter').focus(), 100);
+            }
+        }
+
+        function handleEnter(event, nextField) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                if (nextField === 'add') {
+                    addHole();
+                    // После добавления фокус на нужное поле
+                    if (currentType === 'rect') {
+                        setTimeout(() => document.getElementById('length').focus(), 100);
+                    } else {
+                        setTimeout(() => document.getElementById('diameter').focus(), 100);
+                    }
+                } else {
+                    const element = document.getElementById(nextField);
+                    if (element) {
+                        element.focus();
+                    }
+                }
             }
         }
 
@@ -429,7 +449,12 @@
         function addHole() {
             try {
                 let countVal = document.getElementById('count').value.trim();
-                const count = countVal ? parseInt(countVal) : 1;
+                if (!countVal) {
+                    alert('Введите количество');
+                    document.getElementById('count').focus();
+                    return;
+                }
+                const count = parseInt(countVal);
                 if (count <= 0) throw new Error('Количество должно быть > 0');
 
                 let hole, paramsStr;
@@ -595,7 +620,7 @@
             total_volume = ceilTo3(total_volume);
             const total_sealant_display = total_perimeter.toFixed(2);
 
-            const mass = total_volume * 1900 * 0.91;
+            const mass = total_volume * 1900;
             const bags = Math.ceil(mass / 25);
             const sealant_packs = Math.ceil(total_perimeter * SEALANT_FACTOR);
 
