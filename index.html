@@ -4,20 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Калькулятор Mapefill</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 10px;
         }
-
         .container {
             max-width: 900px;
             margin: 0 auto;
@@ -26,23 +25,19 @@
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
             overflow: hidden;
         }
-
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 20px;
             text-align: center;
         }
-
         .header h1 {
             font-size: 24px;
             margin-bottom: 5px;
         }
-
         .content {
             padding: 20px;
         }
-
         .section {
             margin-bottom: 25px;
             padding: 15px;
@@ -50,19 +45,16 @@
             border-radius: 8px;
             border-left: 4px solid #667eea;
         }
-
         .section h2 {
             font-size: 16px;
             margin-bottom: 15px;
             color: #333;
         }
-
         .type-selector {
             display: flex;
             gap: 10px;
             margin-bottom: 15px;
         }
-
         .type-btn {
             flex: 1;
             padding: 12px;
@@ -74,36 +66,30 @@
             font-weight: 500;
             transition: all 0.3s;
         }
-
         .type-btn.active {
             border-color: #667eea;
             background: #667eea;
             color: white;
         }
-
         .input-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
             margin-bottom: 15px;
         }
-
         .input-group.full {
             grid-template-columns: 1fr;
         }
-
         .input-field {
             display: flex;
             flex-direction: column;
         }
-
         .input-field label {
             font-size: 13px;
             font-weight: 500;
             margin-bottom: 5px;
             color: #555;
         }
-
         .input-field input {
             padding: 10px;
             border: 1px solid #ddd;
@@ -111,17 +97,14 @@
             font-size: 14px;
             transition: border-color 0.3s;
         }
-
         .input-field input:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
-
         .input-field input.hidden {
             display: none;
         }
-
         .hint {
             background: #fff3cd;
             border: 1px solid #ffc107;
@@ -132,7 +115,6 @@
             margin-bottom: 15px;
             line-height: 1.5;
         }
-
         .btn {
             padding: 12px 20px;
             border: none;
@@ -143,68 +125,59 @@
             transition: all 0.3s;
             width: 100%;
         }
-
         .btn-primary {
             background: #667eea;
             color: white;
         }
-
         .btn-primary:hover {
             background: #5568d3;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
         }
-
+        .btn-primary:active {
+            transform: translateY(0);
+        }
         .btn-danger {
             background: #dc3545;
             color: white;
             font-size: 13px;
             margin-top: 10px;
         }
-
         .btn-danger:hover {
             background: #c82333;
         }
-
         table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 15px;
         }
-
         thead {
             background: #667eea;
             color: white;
         }
-
         th {
             padding: 12px;
             text-align: left;
             font-weight: 600;
             font-size: 13px;
         }
-
         td {
             padding: 12px;
             border-bottom: 1px solid #eee;
             font-size: 13px;
         }
-
         tbody tr:hover {
             background: #f8f9fa;
         }
-
         tbody tr.selected {
             background: #e7f3ff;
         }
-
         .table-container {
             max-height: 400px;
             overflow-y: auto;
             border-radius: 6px;
             border: 1px solid #ddd;
         }
-
         .result-box {
             background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
             border-left: 4px solid #667eea;
@@ -212,74 +185,96 @@
             border-radius: 6px;
             margin-bottom: 10px;
         }
-
         .result-box.mapefill {
             border-left-color: #1565C0;
             background: linear-gradient(135deg, #1565C015 0%, #1565C015 100%);
         }
-
         .result-box.sealant {
             border-left-color: #2E7D32;
             background: linear-gradient(135deg, #2E7D3215 0%, #2E7D3215 100%);
         }
-
         .result-title {
             font-size: 13px;
             font-weight: 600;
             color: #555;
             margin-bottom: 5px;
         }
-
         .result-box.mapefill .result-title {
             color: #1565C0;
             font-weight: 700;
         }
-
         .result-box.sealant .result-title {
             color: #2E7D32;
             font-weight: 700;
         }
-
         .result-value {
             font-size: 18px;
             font-weight: 700;
             color: #667eea;
         }
-
         .result-box.mapefill .result-value {
             color: #1565C0;
         }
-
         .result-box.sealant .result-value {
             color: #2E7D32;
         }
-
         .result-detail {
             font-size: 12px;
             color: #888;
             margin-top: 3px;
         }
-
         .empty-state {
             text-align: center;
             padding: 30px;
             color: #999;
             font-size: 14px;
         }
-
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+                max-width: 100%;
+            }
+            .section:first-child {
+                display: none !important;
+            }
+            button {
+                display: none !important;
+            }
+            .header {
+                background: white;
+                color: #667eea;
+                border-bottom: 2px solid #667eea;
+            }
+            .highlight-bold {
+                font-weight: bold !important;
+            }
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+            th, td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+            th {
+                background-color: #f2f2f2;
+            }
+        }
         @media (max-width: 600px) {
             .input-group {
                 grid-template-columns: 1fr;
             }
-
             .header h1 {
                 font-size: 20px;
             }
-
             table {
                 font-size: 12px;
             }
-
             th, td {
                 padding: 8px;
             }
@@ -291,21 +286,16 @@
         <div class="header">
             <h1>🧮 Калькулятор Mapefill + SikaSwell S-2</h1>
         </div>
-
         <div class="content">
-            <!-- Ввод данных -->
             <div class="section">
-
                 <div class="type-selector">
                     <button class="type-btn active" id="rectBtn" onclick="setType('rect')">Прямоугольное</button>
                     <button class="type-btn" id="roundBtn" onclick="setType('round')">Круглое</button>
                 </div>
-
                 <div class="hint">
                     ❗ <strong>ВНИМАНИЕ:</strong><br>
                     • Все размеры вводите в <strong>МИЛЛИМЕТРАХ (мм)</strong>
                 </div>
-
                 <div class="input-group">
                     <div class="input-field">
                         <label for="length">Длина (мм)</label>
@@ -316,14 +306,12 @@
                         <input type="number" id="width" placeholder="Введите ширину" step="0.1" onkeypress="handleEnter(event, 'height')">
                     </div>
                 </div>
-
                 <div class="input-group" id="rectGroup">
                     <div class="input-field">
                         <label for="height">Глубина (мм)</label>
                         <input type="number" id="height" placeholder="Введите глубину" step="0.1" onkeypress="handleEnter(event, 'count')">
                     </div>
                 </div>
-
                 <div class="input-group" id="roundGroup" style="display: none;">
                     <div class="input-field">
                         <label for="diameter">Диаметр (мм)</label>
@@ -334,30 +322,26 @@
                         <input type="number" id="depth" placeholder="Введите глубину" step="0.1" onkeypress="handleEnter(event, 'count')">
                     </div>
                 </div>
-
                 <div class="input-group full">
                     <div class="input-field">
                         <label for="count">Количество (шт)</label>
                         <input type="number" id="count" placeholder="Введите количество" min="1" step="1" onkeypress="handleEnter(event, 'add')">
                     </div>
                 </div>
-
                 <button class="btn btn-primary" id="addBtn" onclick="addHole()">➕ Добавить отверстие</button>
             </div>
-
-            <!-- Таблица -->
             <div class="section">
-                <h2>📊 Добавленные отверстия</h2>
+                <h2 class="highlight-bold">📊 Добавленные отверстия</h2>
                 <div class="table-container" id="tableContainer">
                     <table id="holesTable">
                         <thead>
                             <tr>
-                                <th>№</th>
-                                <th>Тип</th>
-                                <th>Параметры (мм)</th>
-                                <th>Кол-во</th>
-                                <th>Объём (м³)</th>
-                                <th>Герметик (м.п.)</th>
+                                <th class="highlight-bold">№</th>
+                                <th class="highlight-bold">Тип</th>
+                                <th class="highlight-bold">Параметры (мм)</th>
+                                <th class="highlight-bold">Кол-во</th>
+                                <th class="highlight-bold">Объём (м³)</th>
+                                <th class="highlight-bold">Герметик (м.п.)</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -368,56 +352,56 @@
                 </div>
                 <button class="btn btn-danger" onclick="deleteSelected()">🗑 Удалить выбранное</button>
             </div>
-
-            <!-- Результаты -->
             <div class="section">
-                <h2>📈 Результат расчёта</h2>
+                <h2 class="highlight-bold">📈 Результат расчёта</h2>
+                <div class="result-box" style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); border-left-color: #667eea;">
+                    <div class="result-title highlight-bold" style="color: #667eea; font-weight: 700;">Количество отверстий</div>
+                    <div class="result-value highlight-bold" style="color: #667eea;" id="holesCount">0 шт</div>
+                </div>
                 <div class="result-box mapefill">
-                    <div class="result-title">Анкерный заполнитель Mapefill, 25 кг</div>
-                    <div class="result-value" id="mapefillResult">0.00 кг | 0 мешков</div>
-                    <div class="result-detail" id="mapefillDetail"></div>
+                    <div class="result-title highlight-bold">Анкерный заполнитель Mapefill, 25 кг</div>
+                    <div class="result-value highlight-bold" id="mapefillResult">0.00 кг | 0 мешков</div>
+                    <div class="result-detail highlight-bold" id="mapefillDetail"></div>
                 </div>
                 <div class="result-box sealant">
-                    <div class="result-title">Герметик SikaSwell S-2 набухающий красный, 600 мл</div>
-                    <div class="result-value" id="sealantResult">0.00 м.п. | 0 туб</div>
-                    <div class="result-detail" id="sealantDetail"></div>
+                    <div class="result-title highlight-bold">Герметик SikaSwell S-2 набухающий красный, 600 мл</div>
+                    <div class="result-value highlight-bold" id="sealantResult">0.00 м.п. | 0 туб</div>
+                    <div class="result-detail highlight-bold" id="sealantDetail"></div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px;">
+                    <button class="btn btn-primary" onclick="downloadPDF()" style="background: #28a745;">📄 PDF</button>
+                    <button class="btn btn-primary" onclick="copyResults()" style="background: #17a2b8;">📋 Копировать</button>
+                    <button class="btn btn-primary" onclick="exportToExcel()" style="background: #217346;">📊 Excel</button>
                 </div>
             </div>
         </div>
     </div>
-
     <script>
         const SEALANT_FACTOR = 0.204;
         let holes = [];
         let currentType = 'rect';
         let selectedRow = null;
+        let totalHolesCount = 0;
 
         function setType(type) {
             currentType = type;
-            
-            // Обновляем кнопки
             document.getElementById('rectBtn').classList.remove('active');
             document.getElementById('roundBtn').classList.remove('active');
-            
+
             if (type === 'rect') {
                 document.getElementById('rectBtn').classList.add('active');
-                // Показываем поля прямоугольника
                 document.getElementById('length').parentElement.parentElement.style.display = 'grid';
                 document.getElementById('width').parentElement.parentElement.style.display = 'grid';
                 document.getElementById('rectGroup').style.display = 'grid';
-                // Скрываем поля круга
                 document.getElementById('roundGroup').style.display = 'none';
-                // Устанавливаем фокус на Длину
                 setTimeout(() => document.getElementById('length').focus(), 100);
             } else {
                 document.getElementById('roundBtn').classList.add('active');
-                // Скрываем поля прямоугольника
                 document.getElementById('length').parentElement.parentElement.style.display = 'none';
                 document.getElementById('width').parentElement.parentElement.style.display = 'none';
                 document.getElementById('rectGroup').style.display = 'none';
-                // Показываем поля круга
                 document.getElementById('roundGroup').style.display = 'grid';
-                // Устанавливаем фокус на Диаметр
                 setTimeout(() => document.getElementById('diameter').focus(), 100);
             }
         }
@@ -427,7 +411,6 @@
                 event.preventDefault();
                 if (nextField === 'add') {
                     addHole();
-                    // После добавления фокус на нужное поле
                     if (currentType === 'rect') {
                         setTimeout(() => document.getElementById('length').focus(), 100);
                     } else {
@@ -450,15 +433,11 @@
             try {
                 let countVal = document.getElementById('count').value.trim();
                 if (!countVal) {
-                    alert('Введите количество');
-                    document.getElementById('count').focus();
-                    return;
+                    throw new Error('Введите количество');
                 }
                 const count = parseInt(countVal);
                 if (count <= 0) throw new Error('Количество должно быть > 0');
-
                 let hole, paramsStr;
-
                 if (currentType === 'round') {
                     const d_mm = parseFloat(document.getElementById('diameter').value);
                     const depth_mm = parseFloat(document.getElementById('depth').value);
@@ -471,7 +450,6 @@
                         depth_m: depth_mm / 1000,
                         count: count
                     };
-                    paramsStr = `Ø${d_mm.toFixed(0)}×${depth_mm.toFixed(0)} мм`;
                 } else {
                     const l_mm = parseFloat(document.getElementById('length').value);
                     const w_mm = parseFloat(document.getElementById('width').value);
@@ -486,28 +464,8 @@
                         height_m: h_mm / 1000,
                         count: count
                     };
-                    paramsStr = `${l_mm.toFixed(0)}×${w_mm.toFixed(0)}×${h_mm.toFixed(0)} мм`;
                 }
-
-                // Расчёт объёма
-                let vol_one;
-                if (hole.type === 'round') {
-                    vol_one = Math.PI * Math.pow(hole.diameter_m / 2, 2) * hole.depth_m;
-                } else {
-                    vol_one = hole.length_m * hole.width_m * hole.height_m;
-                }
-                const vol_one_rounded = ceilTo3(vol_one);
-                const total_vol = vol_one_rounded * hole.count;
-
-                // Расчёт герметика
-                let perimeter;
-                if (hole.type === 'round') {
-                    perimeter = Math.PI * hole.diameter_m;
-                } else {
-                    perimeter = 2 * (hole.length_m + hole.width_m);
-                }
-                const total_sealant = (perimeter * hole.count).toFixed(2);
-
+                totalHolesCount += count;
                 holes.push(hole);
                 renderTable();
                 recalculate();
@@ -532,19 +490,17 @@
                 tbody.innerHTML = '<tr><td colspan="7" class="empty-state">Отверстия не добавлены</td></tr>';
                 return;
             }
-
             tbody.innerHTML = holes.map((hole, idx) => {
                 let paramsStr, vol_one;
                 if (hole.type === 'round') {
-                    paramsStr = `Ø${(hole.diameter_m * 1000).toFixed(0)}×${(hole.depth_m * 1000).toFixed(0)} мм`;
+                    paramsStr = 'Ø' + (hole.diameter_m * 1000).toFixed(0) + '×' + (hole.depth_m * 1000).toFixed(0) + ' мм';
                     vol_one = Math.PI * Math.pow(hole.diameter_m / 2, 2) * hole.depth_m;
                 } else {
-                    paramsStr = `${(hole.length_m * 1000).toFixed(0)}×${(hole.width_m * 1000).toFixed(0)}×${(hole.height_m * 1000).toFixed(0)} мм`;
+                    paramsStr = (hole.length_m * 1000).toFixed(0) + '×' + (hole.width_m * 1000).toFixed(0) + '×' + (hole.height_m * 1000).toFixed(0) + ' мм';
                     vol_one = hole.length_m * hole.width_m * hole.height_m;
                 }
                 const vol_rounded = ceilTo3(vol_one);
                 const total_vol = vol_rounded * hole.count;
-
                 let perimeter;
                 if (hole.type === 'round') {
                     perimeter = Math.PI * hole.diameter_m;
@@ -553,18 +509,7 @@
                 }
                 const total_sealant = (perimeter * hole.count).toFixed(2);
                 const holeType = hole.type === 'round' ? 'Круглое' : 'Прямоугольное';
-
-                return `
-                    <tr onclick="selectRow(${idx})">
-                        <td>${idx + 1}</td>
-                        <td>${holeType}</td>
-                        <td>${paramsStr}</td>
-                        <td>${hole.count}</td>
-                        <td>${total_vol.toFixed(3)}</td>
-                        <td>${total_sealant}</td>
-                        <td><input type="checkbox" id="check_${idx}" onchange="selectRow(${idx})"></td>
-                    </tr>
-                `;
+                return '<tr onclick="selectRow(' + idx + ')"><td>' + (idx + 1) + '</td><td>' + holeType + '</td><td>' + paramsStr + '</td><td>' + hole.count + '</td><td>' + total_vol.toFixed(3) + '</td><td>' + total_sealant + '</td><td><input type="checkbox" id="check_' + idx + '" onchange="selectRow(' + idx + ')"></td></tr>';
             }).join('');
         }
 
@@ -579,58 +524,237 @@
                 return;
             }
             const indices = Array.from(checkboxes).map(cb => parseInt(cb.id.split('_')[1])).sort((a, b) => b - a);
+
             indices.forEach(idx => {
+                totalHolesCount -= holes[idx].count;
                 holes.splice(idx, 1);
             });
+
             renderTable();
             recalculate();
         }
 
         function recalculate() {
+            document.getElementById('holesCount').textContent = totalHolesCount + ' шт';
             if (holes.length === 0) {
+                totalHolesCount = 0;
+                document.getElementById('holesCount').textContent = '0 шт';
                 document.getElementById('mapefillResult').textContent = '0.00 кг | 0 мешков';
                 document.getElementById('sealantResult').textContent = '0.00 м.п. | 0 туб';
                 document.getElementById('mapefillDetail').textContent = '';
                 document.getElementById('sealantDetail').textContent = '';
                 return;
             }
-
             let total_volume = 0;
             let total_perimeter = 0;
-
-            holes.forEach(hole => {
+            holes.forEach(h => {
                 let vol_one;
-                if (hole.type === 'round') {
-                    vol_one = Math.PI * Math.pow(hole.diameter_m / 2, 2) * hole.depth_m;
+                if (h.type === 'round') {
+                    vol_one = Math.PI * Math.pow(h.diameter_m / 2, 2) * h.depth_m;
                 } else {
-                    vol_one = hole.length_m * hole.width_m * hole.height_m;
+                    vol_one = h.length_m * h.width_m * h.height_m;
                 }
                 const vol_rounded = ceilTo3(vol_one);
-                total_volume += vol_rounded * hole.count;
-
+                total_volume += vol_rounded * h.count;
                 let perimeter;
-                if (hole.type === 'round') {
-                    perimeter = Math.PI * hole.diameter_m;
+                if (h.type === 'round') {
+                    perimeter = Math.PI * h.diameter_m;
                 } else {
-                    perimeter = 2 * (hole.length_m + hole.width_m);
+                    perimeter = 2 * (h.length_m + h.width_m);
                 }
-                total_perimeter += perimeter * hole.count;
+                total_perimeter += perimeter * h.count;
             });
-
-            total_volume = ceilTo3(total_volume);
             const total_sealant_display = total_perimeter.toFixed(2);
-
-            const mass = total_volume * 1900;
-            const bags = Math.ceil(mass / 25);
             const sealant_packs = Math.ceil(total_perimeter * SEALANT_FACTOR);
-
-            document.getElementById('mapefillResult').textContent = `${mass.toFixed(2)} кг | ${bags} мешков`;
-            document.getElementById('mapefillDetail').textContent = `Объём: ${total_volume.toFixed(3)} м³`;
-            document.getElementById('sealantResult').textContent = `${total_sealant_display} м.п. | ${sealant_packs} туб`;
-            document.getElementById('sealantDetail').textContent = `Периметр: ${total_perimeter.toFixed(2)} м`;
+            const mass = Math.ceil(total_volume * 1900.0 * 0.88);
+            const bags = Math.ceil(mass / 25.0);
+            document.getElementById('mapefillResult').textContent = mass + ' кг | ' + bags + ' мешков';
+            document.getElementById('mapefillDetail').textContent = 'Объём: ' + total_volume.toFixed(3) + ' м³';
+            document.getElementById('sealantResult').textContent = total_sealant_display + ' м.п. | ' + sealant_packs + ' туб(-ы)';
+            document.getElementById('sealantDetail').textContent = 'Периметр: ' + total_perimeter.toFixed(2) + ' м';
         }
 
-        // Инициализация
+        function copyResults() {
+            if (holes.length === 0) {
+                alert('Нет данных для копирования. Добавьте отверстия.');
+                return;
+            }
+            let text = '🧮 КАЛЬКУЛЯТОР MAPEFILL - РЕЗУЛЬТАТЫ\n';
+            text += '==================================================\n\n';
+            text += '📊 ОТВЕРСТИЯ:\n';
+
+            holes.forEach((hole, idx) => {
+                let params;
+                if (hole.type === 'round') {
+                    params = 'Ø' + (hole.diameter_m * 1000).toFixed(0) + '×' + (hole.depth_m * 1000).toFixed(0) + ' мм';
+                } else {
+                    params = (hole.length_m * 1000).toFixed(0) + '×' + (hole.width_m * 1000).toFixed(0) + '×' + (hole.height_m * 1000).toFixed(0) + ' мм';
+                }
+                const type = hole.type === 'round' ? 'Круглое' : 'Прямоугольное';
+                text += (idx + 1) + '. ' + type + ' ' + params + ' — ' + hole.count + ' шт\n';
+            });
+
+            text += '\n==================================================\n';
+            text += '📈 ИТОГОВЫЙ РАСЧЁТ:\n\n';
+            text += '• Количество отверстий: ' + totalHolesCount + ' шт\n';
+            text += '• ' + document.getElementById('mapefillResult').textContent + '\n';
+            text += '• ' + document.getElementById('sealantResult').textContent + '\n';
+            text += '\n==================================================\n';
+            text += 'Дата: ' + new Date().toLocaleString('ru-RU');
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ Результаты скопированы в буфер обмена!');
+            }).catch(() => {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('✅ Результаты скопированы!');
+            });
+        }
+
+        function downloadPDF() {
+            if (holes.length === 0) {
+                alert('Нет данных для сохранения. Добавьте отверстия.');
+                return;
+            }
+            window.print();
+        }
+
+function exportToExcel() {
+    if (holes.length === 0) {
+        alert('Нет данных для экспорта. Добавьте отверстия.');
+        return;
+    }
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet([]);
+
+    // Заголовок документа
+    XLSX.utils.sheet_add_aoa(ws, [
+        ["=== КАЛЬКУЛЯТОР MAPEFILL + SIKASWELL S-2 ==="],
+        ["Дата расчёта:", new Date().toLocaleString('ru-RU')],
+        [],
+        ["=== ДОБАВЛЕННЫЕ ОТВЕРСТИЯ ==="]
+    ], { origin: "A1" });
+
+    // Заголовки таблицы
+    XLSX.utils.sheet_add_aoa(ws, [
+        ["№", "Тип отверстия", "Параметры (мм)", "Кол-во (шт)", "Объём (м³)", "Герметик (м.п.)"]
+    ], { origin: "A5" });
+
+    // Данные таблицы
+    holes.forEach((hole, idx) => {
+        let params, vol_one;
+        if (hole.type === 'round') {
+            params = 'Ø' + (hole.diameter_m * 1000).toFixed(0) + ' × ' + (hole.depth_m * 1000).toFixed(0) + ' мм';
+            vol_one = Math.PI * Math.pow(hole.diameter_m / 2, 2) * hole.depth_m;
+        } else {
+            params = (hole.length_m * 1000).toFixed(0) + ' × ' + (hole.width_m * 1000).toFixed(0) + ' × ' + (hole.height_m * 1000).toFixed(0) + ' мм';
+            vol_one = hole.length_m * hole.width_m * hole.height_m;
+        }
+        const vol_rounded = ceilTo3(vol_one);
+        const total_vol = vol_rounded * hole.count;
+        let perimeter;
+        if (hole.type === 'round') {
+            perimeter = Math.PI * hole.diameter_m;
+        } else {
+            perimeter = 2 * (hole.length_m + hole.width_m);
+        }
+        const total_sealant = (perimeter * hole.count).toFixed(2);
+        const type = hole.type === 'round' ? 'Круглое' : 'Прямоугольное';
+
+        XLSX.utils.sheet_add_aoa(ws, [
+            [idx + 1, type, params, hole.count, total_vol.toFixed(3), total_sealant]
+        ], { origin: -1 });
+    });
+
+    // Итоговый расчёт
+    XLSX.utils.sheet_add_aoa(ws, [
+        [],
+        ["=== ИТОГОВЫЙ РАСЧЁТ ==="],
+        ["Показатель", "Значение"],
+        ["Количество отверстий (шт)", totalHolesCount],
+        [],
+        ["Анкерный заполнитель Mapefill, 25 кг (кг)", document.getElementById('mapefillResult').textContent.split('|')[0].trim()],
+        ["Анкерный заполнитель Mapefill, 25 кг (мешков)", document.getElementById('mapefillResult').textContent.split('|')[1].trim()],
+        [],
+        ["Герметик SikaSwell S-2, 600 мл (туб(-ы))", document.getElementById('sealantResult').textContent.split('|')[1].trim()],
+        [],
+        ["ДОПОЛНИТЕЛЬНО"],
+        ["Общий объём (м³)", document.getElementById('mapefillDetail').textContent.replace('Объём: ', '')],
+        ["Общий периметр (м)", document.getElementById('sealantDetail').textContent.replace('Периметр: ', '')]
+    ], { origin: -1 });
+
+    // Применяем стили для каждой ячейки
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    for (let R = range.s.r; R <= range.e.r; ++R) {
+        for (let C = range.s.c; C <= range.e.c; ++C) {
+            const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+            if (!ws[cellAddress]) continue;
+
+            // Стили для заголовков
+            if (R === 0 || R === 4 || R === 7 || R === 11) {
+                ws[cellAddress].s = {
+                    font: { bold: true, sz: 12 },
+                    alignment: { horizontal: "center", vertical: "center" },
+                    fill: { fgColor: { rgb: "B7DEE8" } }
+                };
+            }
+
+            // Стили для заголовков таблицы
+            if (R === 4) {
+                ws[cellAddress].s = {
+                    font: { bold: true, sz: 12 },
+                    alignment: { horizontal: "center", vertical: "center" },
+                    fill: { fgColor: { rgb: "B7DEE8" } }
+                };
+            }
+
+            // Стили для данных таблицы
+            if (R >= 5 && R <= 5 + holes.length) {
+                if (!ws[cellAddress].s) ws[cellAddress].s = {};
+                ws[cellAddress].s.border = {
+                    top: { style: "thin" },
+                    left: { style: "thin" },
+                    bottom: { style: "thin" },
+                    right: { style: "thin" }
+                };
+                if (R % 2 === 0) {
+                    ws[cellAddress].s.fill = { fgColor: { rgb: "E7F5FF" } };
+                } else {
+                    ws[cellAddress].s.fill = { fgColor: { rgb: "FFFFFF" } };
+                }
+            }
+
+            // Стили для итоговых строк
+            if (R === 8 || R === 9 || R === 10 || R === 13 || R === 14) {
+                ws[cellAddress].s = {
+                    font: { bold: true, sz: 12 },
+                    alignment: { horizontal: "center", vertical: "center" }
+                };
+            }
+        }
+    }
+
+    // Настройка ширины столбцов
+    ws['!cols'] = [
+        { wch: 45 },   // №
+        { wch: 15 },  // Тип отверстия
+        { wch: 25 },  // Параметры (мм)
+        { wch: 10 },  // Кол-во (шт)
+        { wch: 15 },  // Объём (м³)
+        { wch: 15 }   // Герметик (м.п.)
+    ];
+
+    // Добавляем лист в книгу
+    XLSX.utils.book_append_sheet(wb, ws, "Расчёт");
+
+    // Сохраняем файл
+    XLSX.writeFile(wb, 'Mapefill_расчёт_' + new Date().toISOString().split('T')[0] + '.xlsx');
+}
+
         renderTable();
         recalculate();
     </script>
